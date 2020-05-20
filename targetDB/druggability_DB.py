@@ -594,17 +594,24 @@ def get_ligands_to_do(chembl_code):
 	connector2.close()
 
 	# =========# ADDING IN THE TO-DO LIST ONLY LIGAND WITH NO BIOACTIVITY IN THE DB #========================#
-
-	for i in res_lig_target.index:
-		if res_lig_target.loc[i]['lig_id'] in res_lig_in_db.index:
-			if int(str(res_lig_target.loc[i]['chembl_version']).split('_')[1]) <= int(
-					str(res_lig_in_db.loc[res_lig_target.loc[i]['lig_id']].chembl_version).split('_')[1]):
-				pass
-			else:
-				lig_to_do.append(res_lig_target.loc[i]['lig_id'])
-		else:
-			lig_to_do.append(res_lig_target.loc[i]['lig_id'])
-	return lig_to_do
+        for i in res_lig_target.index:
+                if res_lig_target.loc[i]['lig_id'] in res_lig_in_db.index:
+                        try:
+                                if int(str(res_lig_target.loc[i]['chembl_version']).split('_')[1]) <= int(
+                                                str(res_lig_in_db.loc[res_lig_target.loc[i]['lig_id']].chembl_version).split('_')[1]):
+                                        pass
+                                else:
+                                        lig_to_do.append(res_lig_target.loc[i]['lig_id'])
+                        except ValueError:
+                                try:
+                                        if int(str(res_lig_target.loc[i]['chembl_version']).split('_')[1]) <= int(
+                                                        str(res_lig_in_db.loc[res_lig_target.loc[i]['lig_id']].chembl_version).split(' ')[0][-2:]):
+                                                                pass
+                                except:
+                                        print("[LIGANDS][ERROR]: Invalid lig_id.chembl_version: ", res_lig_in_db.loc[res_lig_target.loc[i]['lig_id']].chembl_version)
+                else:
+                        lig_to_do.append(res_lig_target.loc[i]['lig_id'])
+        return lig_to_do
 
 
 def get_assays():
