@@ -545,6 +545,7 @@ def get_pdb_seq_info(pdb_list, domain):
 
 
 def get_ligands_to_do(chembl_code):
+	print(chembl_code)
 	# ====================# GETTING THE LIST OF LIGAND WITH BIOACTIVITIES IN THE DB #=========================#
 	lig_to_do = []
 	if verbose:
@@ -778,7 +779,8 @@ def pdb_blast(sequence, path, gene_id, gene='', pdb_list=None):
 	columns = ['PDB_code', 'seq_percent', 'similarity', 'Chain_id', 'chain_letter', 'gene', 'organism', 'uniprot_id',
 	           'path']
 	alternate_pdb = pd.DataFrame(columns=columns)
-	if blast_file.is_file():
+#	if blast_file.is_file():
+	if blast_file.is_file() and os.path.getsize(blast_file) > 0: ## CLARE
 		if ((((time.time() - blast_file.stat().st_mtime) / 60) / 60) / 24) <= 15:
 			if verbose:
 				print('[3D BLAST FILE FOUND]:' + gene)
@@ -787,14 +789,16 @@ def pdb_blast(sequence, path, gene_id, gene='', pdb_list=None):
 			if verbose:
 				print('[3D BLAST FILE FOUND]: File older than 2 weeks, a new blast will be performed (' + gene + ')')
 			blast_file.unlink()
-			blast_launcher(sequence, seq_file, 'pdbaa', blast_file, num_core=bcore)
+		#	blast_launcher(sequence, seq_file, 'pdbaa', blast_file, num_core=bcore)
+			blast_launcher(sequence, seq_file, 'pdb', blast_file, num_core=bcore)  ## CLARE
 			if blast_file.is_file():
 				result_handle = blast_file.open()
 			else:
 				print("[3D BLAST][ERROR]: Something went wrong, no blast result generated")
 				return alternate_pdb
 	else:
-		blast_launcher(sequence, seq_file, 'pdbaa', blast_file, num_core=bcore)
+	#	blast_launcher(sequence, seq_file, 'pdbaa', blast_file, num_core=bcore)
+		blast_launcher(sequence, seq_file, 'pdb', blast_file, num_core=bcore) ## CLARE
 		if blast_file.is_file():
 			result_handle = blast_file.open()
 		else:
@@ -808,10 +812,13 @@ def pdb_blast(sequence, path, gene_id, gene='', pdb_list=None):
 	e_value_treshold = 0.0001
 	query_length = float(blast_record.query_length)
 	for alignment in blast_record.alignments:
-		pdb_code = alignment.title.split('|')[3]
+		pdb_code = alignment.title.split('|')[1]
+		chain_id = alignment.accession
+		if pdb_code == "BL_ORD_ID":    ## CLARE because blast IDs cause problems
+			pdb_code = alignment.title.split(" ")[1].split("_")[0]
+			chain_id = alignment.title.split(" ")[1]
 		if pdb_code in pdb_list:
 			continue
-		chain_id = alignment.accession
 		for hsp in alignment.hsps:
 			length = float(hsp.align_length)
 			percent_seq = round((length / query_length) * 100, 1)
@@ -908,9 +915,15 @@ def proteins_blast(sequence, gene_id, gene, path):
 	for alignment in blast_record.alignments:
 		for hsp in alignment.hsps:
 			length = float(hsp.align_length)
-			neighbour_accession_code = alignment.accession
-			neighbour_gene_name = alignment.hit_id.split('|')[-1].split('_')[0]
-			neighbour_gene_species = alignment.hit_id.split('|')[-1].split('_')[1]
+			if alignment.hit_id.split('|')[1] == 'BL_ORD_ID':   ## CLARE 
+				alignment_true_hit_id = alignment.title.split(' ')[1]
+				neighbour_accession_code = alignment_true_hit_id.split('|')[3]
+				neighbour_gene_name = alignment_true_hit_id.split('|')[4].split('_')[0]
+				neighbour_gene_species = alignment_true_hit_id.split('|')[4].split('_')[1]
+			else:
+				neighbour_accession_code = alignment.accession
+				neighbour_gene_name = alignment.hit_id.split('|')[-1].split('_')[0]
+				neighbour_gene_species = alignment.hit_id.split('|')[-1].split('_')[1]
 			if neighbour_accession_code in list_of_accession_ID:
 				continue
 			else:
