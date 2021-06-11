@@ -78,6 +78,7 @@ def pubmed_search(gene_name, email, return_number=False, mesh_term=None):
     data = [i for i in Medline.parse(info_pub)]
 
     df = pd.DataFrame.from_records(data)
+    df.dropna(subset=['PMID'],inplace=True)
     df.rename(index=str, columns=dict_medline, inplace=True)
     pub_type_list = ['Journal Article', 'Case Reports', 'Clinical Trial', 'Comparative Study', 'Letter',
                      'Meta-Analysis', 'Review']
@@ -807,8 +808,8 @@ def get_single_excel(target):
     return message
 
 
-def get_list_excel(list_targets):
-    not_in_db = {'Not present in DB': []}
+def get_list_excel(list_targets,not_found=[]):
+    not_in_db = {'Not present in DB': not_found}
 
     if list_targets.empty:
         return print("No genes that you entered are in the Database")
@@ -854,10 +855,10 @@ def get_list_excel(list_targets):
                     'information_score': 'information_score [mpo coeff= ' + str(tscore.coeff['info']) + ']',
                     'safety_score': 'safety_score [mpo coeff= ' + str(tscore.coeff['safe']) + ']'}
 
-    for gene_symbol in list_targets.index:
-        for tid in list_targets.uniprot_ids.loc[gene_symbol]:
-            if tid not in list_done:
-                not_in_db['Not present in DB'].append(list_targets.symbol.loc[gene_symbol])
+    # for gene_symbol in list_targets.index:
+    #     for tid in list_targets.uniprot_ids.loc[gene_symbol]:
+    #         if tid not in list_done:
+    #             not_in_db['Not present in DB'].append(list_targets.symbol.loc[gene_symbol])
     not_in_db = pd.DataFrame.from_dict(not_in_db)
 
     t = time.strftime("%d%b%Y_%H%M%S")
