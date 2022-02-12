@@ -1093,6 +1093,7 @@ def open_target_association(ensembl_id):
 							  'rna_expression', 'somatic_mutation', 'overall_score', 'disease_name', 'disease_area',
 							  'gene_symbol'])
 
+
 	# Extract the assodiated diseases info for this target
 	ad=pd.DataFrame.from_dict(api_response_as_json['data']['target']['associatedDiseases'])
 
@@ -1117,6 +1118,7 @@ def open_target_association(ensembl_id):
 
 		# Now build a dictionary to take the result
 		data={'affected_pathway':0.,'animal_model':0.,'genetic_association':0., 'known_drug':0.,
+
 			  'literature':0., 'rna_expression':0., 'somatic_mutation':0., 'overall_score':overall_score,
 			  'disease_name':disease_name,'disease_area':disease_areas,'gene_symbol':gene_symbol}
 
@@ -1129,11 +1131,11 @@ def open_target_association(ensembl_id):
 
 	df = df.round(2)
 	df = df[df['overall_score'] > 0.05]
+
 	rename = {'literature': 'litterature_mining'}
 	df.rename(columns=rename, inplace=True)
 
 	return df
-
 def write_to_db(target, db_path):
 	if target.record is None:
 		return None
