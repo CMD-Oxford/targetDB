@@ -1696,7 +1696,6 @@ def main():
 		elif args.do_all:
 			gene_df,missing = g2id.gene_to_id_all(targetDB_path=targetDB)
 			break
-
 	for g_id in gene_df.index:
 		if len(gene_df.uniprot_ids.loc[g_id]) == 0:
 			if args.verbose:
