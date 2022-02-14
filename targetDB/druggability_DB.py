@@ -545,6 +545,7 @@ def get_pdb_seq_info(pdb_list, domain):
 
 
 def get_ligands_to_do(chembl_code):
+	print(chembl_code)
 	# ====================# GETTING THE LIST OF LIGAND WITH BIOACTIVITIES IN THE DB #=========================#
 	lig_to_do = []
 	if verbose:
@@ -1448,6 +1449,7 @@ class Target:
 				self.pdb_info = get_pdb_seq_info(self.pdb, self.domain)
 
 				# =====================# GET POCKETS (source: fpockets) ======================#
+
 				self.pockets = pocket.get_pockets(self.path, sphere_size=3, pdb_info=self.pdb, domain=self.domain,
 								  uniprot_id=self.swissprotID, fpocket_exe=fpocket_exe,verbose=verbose)
 				self.druggable_pockets = self.pockets['pockets'][self.pockets['pockets'].druggable == 'TRUE'].copy()
