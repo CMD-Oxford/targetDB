@@ -599,11 +599,8 @@ def get_ligands_to_do(chembl_code):
 		if res_lig_target.loc[i]['lig_id'] in res_lig_in_db.index:
 			rhs=str(res_lig_in_db.loc[res_lig_target.loc[i]['lig_id']].chembl_version)
 			if '\n' in rhs:
-<<<<<<< HEAD
 				rhs=rhs.split('\n')[1]
-=======
-			    rhs=rhs.split('\n')[1]
->>>>>>> Fixed:
+
 			rhs=rhs.split('_')[1]
 			if int(str(res_lig_target.loc[i]['chembl_version']).split('_')[1]) <= int(rhs):
 					#(str(res_lig_in_db.loc[res_lig_target.loc[i]['lig_id']].chembl_version).split('_')[1])):
@@ -1080,7 +1077,6 @@ def open_target_association(ensembl_id):
 	# Set base URL of GraphQL API endpoint
 	base_url = "https://api.platform.opentargets.org/api/v4/graphql"
 
-<<<<<<< HEAD
 	try:
 		# Perform POST request and check status code of response
 		r = requests.post(base_url, json={"query": query_string, "variables":{}})
@@ -1097,11 +1093,6 @@ def open_target_association(ensembl_id):
 		pd.DataFrame(columns=['affected_pathway', 'animal_model', 'genetic_association', 'known_drug', 'literature',
 							  'rna_expression', 'somatic_mutation', 'overall_score', 'disease_name', 'disease_area',
 							  'gene_symbol'])
-=======
-	# Perform POST request and check status code of response
-	r = requests.post(base_url, json={"query": query_string, "variables":{}})
->>>>>>> Fixed:
-
 
 	# Extract the assodiated diseases info for this target
 	ad=pd.DataFrame.from_dict(api_response_as_json['data']['target']['associatedDiseases'])
